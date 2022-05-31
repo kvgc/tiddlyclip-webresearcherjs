@@ -1,5 +1,20 @@
 {
 	"manifest_version": 2,
+
+	"name" : "tiddlyclip-WebResearcherJS",
+
+	"description" : "clip web content to tiddlywiki integrated with WebResearcherJS",
+
+	"permissions" : [
+		"storage" ,
+		"tabs", "<all_urls>",
+		"contextMenus",
+		"notifications",
+		"clipboardRead"
+	],
+
+	"version" : "0.1.5-v0.2.3",
+
 	"web_accessible_resources": [
 		"content/resources/css/*.css",
 		"/beep.mp3"
@@ -7,16 +22,18 @@
 
 	"applications": {
 		"gecko": {
-			"id": "buggyjeftidclip@gmail.com",
+			"id": "webresearcher@webresearcher.io",
 			"strict_min_version": "57.0"
 		}
 	},
+
 	"background" : {
 		"page" : "content/background.html"
 	},
+
 	"content_scripts" : [ {
 		"js" : [
-			"content/util/logsimple.js"	,		
+			"content/util/logsimple.js"	,
 			"content/contentScript.js"
 		],
       "matches" : [
@@ -26,7 +43,7 @@
       ],
 		"run_at" : "document_start"
 	} ],
-	"description" : "clip web content to tiddlywiki",
+
      "browser_action": {
       "default_icon": {
          "48": "skin/clip48.png"
@@ -34,18 +51,22 @@
       "default_popup": "popup.html"
    },
 
+
 	"icons" : {
 		"16" : "skin/clip16.png",
 		"48" : "skin/clip48.png"
 	},
-	"name" : "tiddlyclip",
-	"permissions" : [
-		"storage" ,
-		"tabs", "<all_urls>",
-		"contextMenus",
-		"notifications",
-		"clipboardRead"
-	],
 
-	"version" : "0.1.5"
+	"sidebar_action": {
+		"default_title" : "Notes",
+		"default_panel": "webresearcher/notes.html"
+	},
+
+	"commands": {
+		"_execute_sidebar_action": {
+			"suggested_key": {
+				"default": "Ctrl+Alt+Y"
+			}
+		}
+	}
 }
