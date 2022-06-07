@@ -59,7 +59,7 @@
 
 	"sidebar_action": {
 		"default_title" : "Notes",
-		"default_panel": "webresearcher/notes.html"
+		"default_panel": "content/webresearcher/notes.html"
 	},
 
 	"commands": {
@@ -68,5 +68,10 @@
 				"default": "Ctrl+Alt+Y"
 			}
 		}
-	}
+	},
+
+	"options_ui": {
+		"page": "options.html",
+		"browser_style": true
+  }
 }

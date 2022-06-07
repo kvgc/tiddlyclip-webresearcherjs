@@ -3,12 +3,12 @@
 
 
 	var remoteTidArr  = [''], install;
-	
+
 	function getHtml()
 	{
 		var focusedWindow = window;
 		var selection = focusedWindow.getSelection();
-		var range;	
+		var range;
 		try {
 			range = selection.getRangeAt(0);
 			var documentFragment = range.cloneContents();
@@ -18,11 +18,11 @@
 		}
 		catch(e) { return null; }//if there is not selected
 	}
-	
+
 	function isTiddlyWikiClassic() {
 		//from tiddlyfox
 		// Test whether the document is a TiddlyWiki (we don't have access to JS objects in it)
-		
+
 		var doc = document;
 		var versionArea = doc.getElementById("versionArea");
 		return doc.getElementById("storeArea") &&
@@ -113,13 +113,13 @@ var hlight = function(color) {
 		if (range) {
 			sel.removeAllRanges();
 			sel.addRange(range);
-		} 
+		}
 		//content.setTimeout('document.designMode = "on"',1000);
-		
+
 		document.execCommand("backcolor", false, backcolor);
 		document.execCommand("styleWithCSS",false,"false");
 
-		document.designMode = 'Off'; 
+		document.designMode = 'Off';
 		return;
 
 	} catch (e) {
@@ -133,8 +133,8 @@ var hlight = function(color) {
 var range, sel;
 var xhairs = (function() {
 function setcss (el, styles) {
-var i, style=el.getAttribute("style")||"";	
-	
+var i, style=el.getAttribute("style")||"";
+
 	for (i in styles) style +=i+":"+styles[i]+";";
 	el.setAttribute("style", style);
 }
@@ -146,7 +146,7 @@ function curser(el) {
     var cH = el.querySelector('#crosshair-h'),
         cV = el.querySelector('#crosshair-v'),
         cHstyle,cVstyle;
- 
+
 
   el.onmousemove = function(e){
   cHstyle = cH.style;
@@ -155,23 +155,23 @@ function curser(el) {
   cVstyle.left = e.clientX+"px";
   movex = e.clientX;
   movey = e.clientY
-  
-}  
+
+}
 
 sel = getSelection();
 				try{
 					if (sel.getRangeAt) {
 						range = sel.getRangeAt(0);
 					}
-					if (range) {				
+					if (range) {
 						sel.removeAllRanges();
-					} 
-				} catch(e) {range=null;} 
+					}
+				} catch(e) {range=null;}
 el.addEventListener('mousedown', init);
   function init(e){
 	  			//if any text is selected temporarly remove this while making the snap
-				
-				
+
+
 				//------make the snap--------
   if (e.which != "1") return;
   el.removeEventListener('mousedown', init, false);
@@ -179,10 +179,10 @@ el.addEventListener('mousedown', init);
   starty = e.clientY;
   startx = e.clientX;
   var boxcss = { width: "10px", height: "10px", "box-shadow":"0 0 5px rgb(100,100,100)", position:"absolute", left: startx+"px", top: starty+"px", cursor: "se-resize"}
-  	setcss(box, boxcss); 
+  	setcss(box, boxcss);
     //el.appendChild(outer);
     //var resizable = { background: "cyan", position: "absolute" ,width: "10px", height: "10px",right: -(e.clientX)+"px", bottom: -(e.clientY)+"px"}
-    //setcss(outer, resizable); 
+    //setcss(outer, resizable);
     if (!box.parent) el.appendChild(box);
     initDrag(e);
 };
@@ -223,7 +223,7 @@ var styles = {
 	  "z-index": "16777271",
 	  margin: "0"
 	};
-	
+
 var xhairh = {
     width:"100%",
     height:"2px",
@@ -236,7 +236,7 @@ var xhairv = {
     "margin-left":"-1px"
 }
 
-var xhair = {    
+var xhair = {
     position:"fixed",
     "background-color":"rgba(100,100,100,0.5)",
     "box-shadow":"0 0 5px rgb(100,100,100)",
@@ -248,15 +248,15 @@ var On = function () {
 	setcss(div, styles);
 	div.id ="basexhair";
 	setcss(diva, xhair);
-	setcss(diva, xhairh);  
+	setcss(diva, xhairh);
 	diva.id ="crosshair-h";
 	div.appendChild(diva);
 	setcss(divb, xhair);
 	setcss(divb, xhairv);
 	divb.id ="crosshair-v";
-	div.appendChild(divb); 
-    document.body.appendChild(div);       
-    curser(div);   
+	div.appendChild(divb);
+    document.body.appendChild(div);
+    curser(div);
     xoff = false;
 }
 var Remove = function () {
@@ -274,10 +274,10 @@ var xhairsOff = function () {
 }
 
 var restorescreen = function () {
-				if (range) {				
+				if (range) {
 					sel.removeAllRanges();
 					sel.addRange(range);
-				} 
+				}
 }
 
 var Coords = function() {
@@ -289,29 +289,29 @@ var Coords = function() {
 	}
 }
 
-return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:restorescreen};  
-})();                
-/////////////////////////// get tiddler ///////////////////////////////                
+return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:restorescreen};
+})();
+/////////////////////////// get tiddler ///////////////////////////////
 	function findTiddlerInPage_ByTitle(title) {
 		var winWrapper = document;
 		var i,tid,nodes, store= document.getElementById("storeArea");
 		if (store) 	nodes = store.getElementsByTagName('div');
 		else nodes = [];
-		//try version 2.2 style store 
-		for(i=0; i<nodes.length; i++) 
-			if(title===nodes[i].getAttribute('title')) 
+		//try version 2.2 style store
+		for(i=0; i<nodes.length; i++)
+			if(title===nodes[i].getAttribute('title'))
 				break;
 
-		if (i !== nodes.length) { 
+		if (i !== nodes.length) {
 			tid= extractToJson(nodes[i]);
 			return tid;
 		}
 		//not found in a version 2.2 store, try 2.1 style
-		for(i=0; i<nodes.length; i++) 
-			if(title===nodes[i].getAttribute('tiddler')) 
+		for(i=0; i<nodes.length; i++)
+			if(title===nodes[i].getAttribute('tiddler'))
 				break;
-				
-		if (i !== nodes.length) { 
+
+		if (i !== nodes.length) {
 			tid= extractToJson(nodes[i]);
 			return tid;
 		}
@@ -323,16 +323,16 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 		else nodes = [];
 		var found=false;
 		remoteTidArr= [];
-		for(i=0; i<nodes.length; i++) 
+		for(i=0; i<nodes.length; i++)
 			if (nodes[i].getAttribute("tags") != null) {
-				
+
 				if(nodes[i].getAttribute("tags").indexOf(tag) !== -1) {
 					found = true;
 					tid = extractToJson(nodes[i]);
-					remoteTidArr.push(tid); 
+					remoteTidArr.push(tid);
 				}
-			}	
-		return found; 
+			}
+		return found;
 	}
 	function log(str){
 		console.log(str);
@@ -350,12 +350,12 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 }
 	function getSelectedAsHtml(location){
 		var aDiv=getHtml();
-		if (!!aDiv) 
+		if (!!aDiv)
 			return htmlthis(aDiv,null,location);
-		else 
+		else
 			return null;
 	}
-	
+
 	var htmlthis =( //TODO I can dd a switch to download and save local version of the 'src' files
 		function() {
 		  var ELEMENT = 1,
@@ -366,22 +366,22 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 					while(i !== l) switch((n = j[i++]).nodeType) {
 					  case ELEMENT: k += html(n, true, LOCALE); break;
 					  case TEXT:    k += htmlEncode( n.nodeValue);
-					} 
+					}
 					if (m==='br') return k;
 					return k + (outer?"</" + m + ">":"");
-				}; 
+				};
 		function attr(el,LOCALE) {
 			var i = 0, j = el.attributes, k = new Array(l = j.length), l, nm,v;
 			while(i !== l) {
 				nm = j[i].nodeName ;
 				v = j[i].value;
 				k[i]='';
-				//check to see if src is local, add path if it is 
+				//check to see if src is local, add path if it is
 				if ((nm==='src')||(nm==='href')){
 					var pathStart = v.substring(0,4);
-					
+
 					if ((pathStart==='file') ||(pathStart === 'http'))
-						k[i] +=nm + '="'+ v + '"'; 
+						k[i] +=nm + '="'+ v + '"';
 					else {
 						if (nm==='src') {
 							var locale = LOCALE.split('//');
@@ -389,9 +389,9 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 							k[i] +=nm +  '="'+ locale+v + '"';
 						}
 						else
-							k[i] +=nm +  '="'+ LOCALE+v + '"';	
+							k[i] +=nm +  '="'+ LOCALE+v + '"';
 					}
-		
+
 				}
 				else
 					k[i] +=nm + '="'+ v +'"';
@@ -418,7 +418,7 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 			install = 1;
 			tiddlycut.log ("install:" + install);
 			// Attach the event handler to the message box
-			
+
 		}
 		else {
 			//just of debug
@@ -431,15 +431,15 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 				messageBox["data-install"] = install;
 				tiddlycut.log ("install:" + install);
 			}
-			
+
 		}
 		messageBox.removeEventListener("tc-send-event",handler);
 		messageBox.addEventListener("tc-send-event",handler = function(event) {
-				
+
 				// Get the details from the message
 				var message = event.target,
 				 msg = {};
-				
+
 				msg.txt = message.getAttribute("data-text");
 				msg.aux = message.getAttribute("data-aux");
 				msg.extra = message.getAttribute("data-extra");
@@ -452,10 +452,10 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 				chrome.runtime.sendMessage(msg,function() {});
 				return false;
 			},false);
-		
+
 	};
     var docked= false;
-    
+
     function dynamicDockRqst (){
 						// Find the message box element
 		var messageBox = document.getElementById("tiddlyclip-message-box");
@@ -484,7 +484,7 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 			  function(request, sender, sendResponse) {
 				if (request.action == 'actiondock') {
 					// first stage send back url
-					tiddlycut.log("actiondock in cs");				
+					tiddlycut.log("actiondock in cs");
 					if(!isTiddlyWikiClassic() && !isTiddlyWiki5()) {
 						sendResponse({title:null});
 						return;
@@ -492,9 +492,9 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 					injectMessageBox(document);tiddlycut.log("actiondock out cs");
 					var docked = true;
 					//here we need to send a dock request to tw if tw5, and have it respond with the alternative config and opts - maybe with a zero delay
-					
+
 					sendResponse({title:document.title, url:window.location.href, config:findTiddlerInPage_ByTitle("TiddlyClipConfig"),opts:findTiddlerInPage_ByTitle(request.data.opttid)});
-					window.setTimeout(function(){dynamicDockRqst();},10);								 
+					window.setTimeout(function(){dynamicDockRqst();},10);
 				}
 		});
 		//callback for cut
@@ -504,7 +504,7 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 					// first stage send back url
 					tiddlycut.log("cut  content cs");
 					remoteTidArr  = [''];
-					sendResponse({ url:window.location.href, html:getSelectedAsHtml(window.location.href), 
+					sendResponse({ url:window.location.href, html:getSelectedAsHtml(window.location.href),
 						title:document.title, twc:isTiddlyWikiClassic()||false, tw5:isTiddlyWiki5(), response: (request.prompt?UserInputDialog(request.prompt):null),
 						coords:xhairs.Coords()});
 				}
@@ -515,7 +515,7 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 					// first stage send back url
 					tiddlycut.log("cutTid  content cs");
 
-					sendResponse({ url:window.location.href, tids:cutTids(), title:document.title, 
+					sendResponse({ url:window.location.href, tids:cutTids(), title:document.title,
 						twc:isTiddlyWikiClassic()||false, tw5:isTiddlyWiki5(),response: (request.prompt?UserInputDialog(request.prompt):null)});
 				}
 		});
@@ -584,7 +584,7 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 					xhairs.Remove();
 					xhairs.restorescreen();
 					sendResponse({ });
-				} 
+				}
 		});
 		//callback for paste
 	   chrome.runtime.onMessage.addListener(
@@ -620,7 +620,7 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 			var text =getSelectionText();
 			if (text!='') {
 				var tid=findTiddlerInPage_ByTitle(text);
-				if (!tid){ 
+				if (!tid){
 					alert ("Not a tiddler");
 					return ; //error
 				}
@@ -632,20 +632,20 @@ return {Coords:Coords, On:On, xhairsOff:xhairsOff, Remove:Remove,restorescreen:r
 				var key = window.prompt('Enter tag');
 				tag.value =key;
 				if (cancelled.value==true) {return ;}
-				if (tag.value ==="") {				
+				if (tag.value ==="") {
 					if (title.value == "") return ;
 					var tid=findTiddlerInPage_ByTitle(title.value);
-					if (!tid){ 
+					if (!tid){
 						alert ("No tiddler");
 						return ; //error
 					}
 					else remoteTidArr[0]= tid;
 				}
-				else if (false===findTiddlersInPage_ByTag(tag.value)){ 
+				else if (false===findTiddlersInPage_ByTag(tag.value)){
 						alert ("No tiddlers");
 						return ; //error
-				}				
-			return remoteTidArr ;	
+				}
+			return remoteTidArr ;
 		}
 		return remoteTidArr;//no error
 	}//end func

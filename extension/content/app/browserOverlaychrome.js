@@ -2,9 +2,9 @@ if (!tiddlycut)
 	var tiddlycut = {};
 if (!tiddlycut.modules)
 	tiddlycut.modules = {};
-	
+
 chrome.runtime.onInstalled.addListener(function(details){console.log ("oninstall "+details.reason)
-    if(details.reason == "install" ||details.reason == "update"){ 
+    if(details.reason == "install" ||details.reason == "update"){
   chrome.windows.getAll({'populate': true}, function(windows) {
     for (var i = 0; i < windows.length; i++) {
       var tabs = windows[i].tabs;
@@ -25,43 +25,43 @@ chrome.runtime.onInstalled.addListener(function(details){console.log ("oninstall
 tiddlycut.modules.browserOverlay = (function ()
 {
 	var adaptions = {};
-	var api = 
+	var api =
 	{
 		onLoad:onLoad, createCategoryPopups:createCategoryPopups, createFilesPopups:createFilesPopups,
 		reload:reload, adaptions:adaptions, changeFile:changeFile , pushData:pushData
 	}
 	var currentsection=0;
-		
+
 	var tabid = [], wikifile = [], wikititle = [], ClipConfig = [], ClipOpts = [];
-	
+
 	var filechoiceclip = 0, tabtot = 0;
-	
+
 	var resetflags, resettags;
-	
-	
+
+
 	var tClip, tcBrowser, pref;
 	var docu, browseris;
 	function onLoad(browser, doc) {
 		browseris 	= browser;
-		docu 		= doc;	
+		docu 		= doc;
 		tClip		= tiddlycut.modules.tClip;
 		tcBrowser	= tiddlycut.modules.tcBrowser;
 		pref	 	= tiddlycut.modules.pref;
 		tiddlerAPI	=tiddlycut.modules.tiddlerAPI;
-		pageData	= tiddlycut.modules.pageData;	
-			
+		pageData	= tiddlycut.modules.pageData;
+
 		function dock(info, tab) {
 			console.log("item dock " + info.menuItemId + " was clicked " +tab.id);
-			chrome.tabs.sendMessage(tab.id, 
+			chrome.tabs.sendMessage(tab.id,
 			{
 				action : 'actiondock', data:{opttid:pref.Get("ConfigOptsTiddler")}
 			}, function (source)
-			{			
+			{
 				if (!source) {
 					console.log("an error occured that suggests that you need to check the 'allow access to fileurl' option");
 					alert ("an error occured that suggests that you need to check the 'allow access to fileurl' option - see chrome://extensions/");
 					return;
-				}				
+				}
 				if (!source.title) return;
 				dockRegister(tab.id, source.url, source.config, source.title, source.opts);
 				console.log("item dock " + source.config);
@@ -69,7 +69,7 @@ tiddlycut.modules.browserOverlay = (function ()
 			);
 		};
 
-	
+
 		var id = chrome.contextMenus.create(
 			{
 				"title" : "dock here",
@@ -86,11 +86,11 @@ tiddlycut.modules.browserOverlay = (function ()
 
 			api.adaptions[method]();
 		}
-		
+
     chrome.storage.local.set({'tags': {},'flags': {}}, function() {console.log("bg: reset taglist")});
 	}
-	
-	
+
+
 	chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 		console.log("tiddlyclipbg: got request: "+msg.action);
 		if (msg.action == "dock") {
@@ -117,7 +117,7 @@ tiddlycut.modules.browserOverlay = (function ()
 					tiddlycut.log("going to send "+msg.action+"  request");
 					var tab = tabs[0];
 					chrome.tabs.sendMessage(tab.id,
-					msg, 
+					msg,
 					function (source){});
 					tiddlycut.log("sent "+msg.action+" request");
 				}
@@ -131,25 +131,25 @@ tiddlycut.modules.browserOverlay = (function ()
 	function tabchange(tabId,changeInfo,type,redock) {
 		var type=type||"other";
 		var i, tab, found=false, tot = tabtot;
-		
+
 		for (i = 1; i < tot+1;i++) {
 			if (tabid[i] == tabId) {found = true; break;};
 		}
-		if (!found) return; 
-		
+		if (!found) return;
+
 		tiddlycut.log("**tabchanged**"+tabId+JSON.stringify(changeInfo)+" type: "+tabId+JSON.stringify(type));
-		
-		if (typeof type !== "string" && (!changeInfo || changeInfo.status !== "complete")) return;//not a reload 
+
+		if (typeof type !== "string" && (!changeInfo || changeInfo.status !== "complete")) return;//not a reload
 			//remove and bubble down those that follow
 
-			for (tab = i; tab <tot; tab++) { 
+			for (tab = i; tab <tot; tab++) {
 				tabid[tab] = tabid[tab+1];
 				wikifile[tab] = wikifile[tab + 1];
-				wikititle[tab] = wikititle[tab + 1];		
+				wikititle[tab] = wikititle[tab + 1];
 				ClipConfig[tab] = ClipConfig[tab+1];
 				ClipOpts[tab] = ClipOpts[tab+1];
 			}
-			
+
 			tabtot = tot-1;
 			if (i == filechoiceclip) {
 				if (i < tot) changeFile(i,redock);
@@ -157,26 +157,26 @@ tiddlycut.modules.browserOverlay = (function ()
 				//self.selectedSection = 0;
 			}
 			if (tabtot === 0) chrome.storage.local.set({'tags': {},'flags': {}}, function() {console.log("bg: reset taglist")});
-			
+
 			if (i == filechoiceclip) filechoiceclip = 0;
 			else if (i <filechoiceclip) filechoiceclip--;
 			tiddlycut.log("choice n",filechoiceclip);
 			createFilesPopups();
-	
+
 	}
 	function setSelectModes(){
 		tcBrowser.setOnImage();
 		tcBrowser.setOnLink();
-		tcBrowser.setImageURL();		
-	}	
+		tcBrowser.setImageURL();
+	}
 
 	function currentSelectModes() {
 		var curModes = [];
 		if (tcBrowser.hasSelectedText())curModes.push(tClip.SELECTMODES.Text);
 		if (tcBrowser.hasCopiedText()) 	curModes.push(tClip.SELECTMODES.Clip);
 		if (tcBrowser.onImage()) 		curModes.push(tClip.SELECTMODES.Image);
-		if (tcBrowser.onLink())			curModes.push(tClip.SELECTMODES.Link);	
-		if (tcBrowser.isTiddlyWikiClassic()) curModes.push(tClip.SELECTMODES.TWC);	
+		if (tcBrowser.onLink())			curModes.push(tClip.SELECTMODES.Link);
+		if (tcBrowser.isTiddlyWikiClassic()) curModes.push(tClip.SELECTMODES.TWC);
 			//alert(curModes);
 		return 	curModes;
 	}
@@ -186,20 +186,20 @@ tiddlycut.modules.browserOverlay = (function ()
 		tClip.loadSectionFromFile(n);//TODO what about tClip.defaultCategories()?
 		createFilesPopups();
 	}
-	
+
 	function sendsysmsg  (tab, section, cat, data) {
 		var sdata = {data:data};
 		chrome.tabs.sendMessage(tab,
 		{ action: 'paste', data:{category:cat, pageData:JSON.stringify(sdata),currentsection:section}});
 	}
-	
+
 	function changeFile(file, redock) {
-		
+
 		var data = {section:'__sys__', wikifile:wikifile[file],wikititle:wikititle[file],category:'refocused'};
 		console.log("changeFile redock is:"+redock+ " filechoiceclip:"+filechoiceclip );
 		if (!redock) {
 			for (i = 1; i < tabtot+1;i++) {
-				sendsysmsg(tabid[i],0, 'refocused',  data);		
+				sendsysmsg(tabid[i],0, 'refocused',  data);
 			}
 			console.log('sent refocus msg');
 		}
@@ -209,7 +209,7 @@ tiddlycut.modules.browserOverlay = (function ()
 		currentsection = 0;//bj added after compared with browserOverlay.js
 		tClip.loadSectionFromFile(0); //load default section
 		createFilesPopups();
-		
+
 	}
     var mytabs=[];
     var separate;
@@ -225,9 +225,9 @@ tiddlycut.modules.browserOverlay = (function ()
 		}*/
 		createCategoryPopups();
 		var secName=tClip.getSectionNames();
-		var fileLoc; 
+		var fileLoc;
 		var n=0;
-		for(var m = 1; m <mytabs.length ;m++){//tiddlycut.log("m",m); 
+		for(var m = 1; m <mytabs.length ;m++){//tiddlycut.log("m",m);
 			chrome.contextMenus.remove(mytabs[m])
 		};
 		if (separate)chrome.contextMenus.remove(separate);
@@ -243,7 +243,7 @@ tiddlycut.modules.browserOverlay = (function ()
 			var title = "";
 			pref.loadOpts(ClipOpts[m]);
 			tiddlycut.log("**menuShowTitle**",pref.Get("menuShowTitle"));
-			if (pref.Get("menuShowTitle") == "true") { 
+			if (pref.Get("menuShowTitle") == "true") {
 				fileLoc =  wikititle[m];
 			} else {
 				fileLoc  = wikifile[m];
@@ -265,16 +265,16 @@ tiddlycut.modules.browserOverlay = (function ()
 					tags = tags.split(/\s*,\s*/);
 					for (var nn = 0; nn < tags.length; nn++) {
 						taglist[tags[nn]] = false;
-					}				
+					}
 				}
 				flags=pref.Get("flags");
 				if (flags) {
 					flags = flags.split(/\s*,\s*/);
 					for (var nn = 0; nn < flags.length; nn++) {
 						flaglist[flags[nn]] = false;
-					}				
-				}		
-				resettags = taglist; //for resetting after aclip to empty boxes in the popup	
+					}
+				}
+				resettags = taglist; //for resetting after aclip to empty boxes in the popup
 				resetflags =flaglist
 				chrome.storage.local.set({'tags': taglist,'flags': flaglist}, function() {console.log("bg: set from taglist")});
 			}
@@ -285,7 +285,7 @@ tiddlycut.modules.browserOverlay = (function ()
 								title: title,
 								contexts: ['all'],
 								onclick: select
-							});			
+							});
 		}
 		separate = chrome.contextMenus.create({"type" : "separator"});
         if (tabtot>0)
@@ -311,8 +311,8 @@ tiddlycut.modules.browserOverlay = (function ()
 								onclick: doReload
 							});
 		}
-		
-		
+
+
 	}
 	var mytabscats=[];
 	var separator ;
@@ -320,8 +320,8 @@ tiddlycut.modules.browserOverlay = (function ()
 	{
 		var n=0;
 					// Create a new menu item to be added
-	
-		for(var m = 1; m <mytabscats.length ;m++){//tiddlycut.log("m",m); 
+
+		for(var m = 1; m <mytabscats.length ;m++){//tiddlycut.log("m",m);
 			chrome.contextMenus.remove(mytabscats[m])
 		};
 		if (separator)chrome.contextMenus.remove(separator);
@@ -343,7 +343,7 @@ tiddlycut.modules.browserOverlay = (function ()
 								onclick: catsel
 							});
 		}
-		
+
 		 separator = chrome.contextMenus.create({"type" : "separator"});
 	}
 
@@ -352,10 +352,10 @@ tiddlycut.modules.browserOverlay = (function ()
 	function dockRegister(id, url, config, title, optid, redock) {
 		//ignore duplicate docks
 		var tot = tabtot, filechoiceclipold = filechoiceclip, redock = redock;
-		for (var i=1; i < tabtot+1; i++) 
+		for (var i=1; i < tabtot+1; i++)
 					if (id == tabid[i]){ tabchange(id,null,"redocking",true);//remove old verision - true means redocking
 						redock = true;
-						if (i !== filechoiceclipold) {redock = false}//this will focus the tw so need to send a dock notification out 
+						if (i !== filechoiceclipold) {redock = false}//this will focus the tw so need to send a dock notification out
 					}
 		tiddlycut.log("docked ",url);
 		tot = tabtot + 1;
@@ -378,10 +378,10 @@ tiddlycut.modules.browserOverlay = (function ()
 			ClipConfig[tot] = null;
 			tiddlycut.log("--config-- null");
 		}
-		
+
 		//pref.Set('ClipConfig'+tot,configtid.body);
 	    //pref.Set('ClipOpts'+tot,????????);//BJ fixme needs to be got when getting config??
-	    changeFile(tabtot, redock);	    
+	    changeFile(tabtot, redock);
 		createFilesPopups();
 	};
 	function injectMessageBox(doc) {
@@ -400,49 +400,49 @@ tiddlycut.modules.browserOverlay = (function ()
 		}
 		return NaN;
 	}
-	
-	
-	function bjSendMessage  (tabid,params,callback)	{	
-		chrome.tabs.sendMessage(tabid, params, function (source) { 
+
+
+	function bjSendMessage  (tabid,params,callback)	{
+		chrome.tabs.sendMessage(tabid, params, function (source) {
 			if(chrome.runtime.lastError || !source)  {
-                //Failed to send 
+                //Failed to send
                 tiddlycut.log("SEND REQUEST FAIL for tab");
                 chrome.tabs.query({
 					active: true,
 					currentWindow: true
 					}, function(tabs) {
-						var tab = tabs[0], source = { url:tab.url, tids:null, title:tab.title, 
+						var tab = tabs[0], source = { url:tab.url, tids:null, title:tab.title,
 							twc:false, tw5:false,response:null};
-						
+
 						callback(source);
 					}
 				);
             }
             else callback(source);
-		});	
+		});
 	}
-	
+
 	function pushData(category, info, tab) //chrome only
 	{
 		var promptindex;
 		tcBrowser.setDataFromBrowser(info, tab); //enter data from chrome menu onclick;
 		//request data from content script
 		//execute any user defined extensions
-		if (tClip.hasModeBegining(tClip.getCategories()[category],"user") )  { 
+		if (tClip.hasModeBegining(tClip.getCategories()[category],"user") )  {
 		    promptindex =tClip.getModeBegining(tClip.getCategories()[category],"user").split("user")[1];
 		} else promptindex = null;
 		var currentCat=category; //remember here for returning callback to pick it up
 		tiddlycut.log("inpusdata id",tab.id);
-		
+
 		//-----highlight control------
 		if (tClip.hasModeBegining(tClip.getCategories()[category],"highlight") ) {
-			
+
 			chrome.tabs.sendMessage(tab.id,
 				{
 					action : 'highlight'
-				}, 
+				},
 				function (source){});
-	
+
 
 			tiddlycut.log("sent hlight request");
 
@@ -451,13 +451,13 @@ tiddlycut.modules.browserOverlay = (function ()
 
 		//-----select control------
 		if (tClip.hasModeBegining(tClip.getCategories()[category],"select") ) {
-			
+
 			chrome.tabs.sendMessage(tab.id,
 				{
 					action : 'select'
-				}, 
+				},
 				function (source){});
-	
+
 
 			tiddlycut.log("sent select request");
 
@@ -465,7 +465,7 @@ tiddlycut.modules.browserOverlay = (function ()
 		}
 		//-----cptext control------
 		if (tClip.hasModeBegining(tClip.getCategories()[category],"cptext") ) {
-			
+
 			chrome.storage.local.set({'cptext': info.selectionText}, function() {console.log("bg: add cptext")});
 
 			return;
@@ -479,21 +479,21 @@ tiddlycut.modules.browserOverlay = (function ()
 		}
 		//-----xhairs------
 		if (tClip.hasMode(tClip.getCategories()[category],"xhairs") ) {
-			
+
 			chrome.tabs.sendMessage(tab.id,
 				{
 					action : 'xhairs'
-				}, 
+				},
 				function (source){});
-	
+
 
 			tiddlycut.log("sent xhairs request");
 
 			return;
 		}
-		
+
 		if (!tClip.hasMode(tClip.getCategories()[category],"tiddlers") ) {
-			if (tClip.hasModeBegining(	tClip.getCategories()[category],"snap") )  { 
+			if (tClip.hasModeBegining(	tClip.getCategories()[category],"snap") )  {
 				//if any text is selected temporarly remove this while making the snap
 				/*var range, sel = content.getSelection();
 				try{
@@ -502,17 +502,17 @@ tiddlycut.modules.browserOverlay = (function ()
 					}
 					if (range) {
 						sel.removeAllRanges();
-					} 
+					}
 				} catch(e) {range=null;} */
 				//------make the snap--------
 				var size=makepercent(tClip.getModeBegining(tClip.getCategories()[category],"snap").split("snap")[1]);
 				if (isNaN(size)) size =1;
-				
+
 					bjSendMessage(tab.id,
 						{
 							action : 'cut', prompt:(promptindex?pref.Get(promptindex):null)
 						}, function (source)
-						{ 
+						{
 							tcBrowser.setDatafromCS( source.url, source.html, source.title, source.twc, source.tw5, source.response, source.coords); //add data to tcbrowser object -retrived later
 							var pasteText = document.querySelector("#output");
 							pasteText.contentEditable = true;
@@ -522,12 +522,12 @@ tiddlycut.modules.browserOverlay = (function ()
 							tcBrowser.setClipboardString(pasteText.value);
 							tiddlycut.log ("currentCat",currentCat);
 							var coords  = source.coords||{x0:null,y0:null,wdt:null,ht:null};
-							tcBrowser.snap(size,tab.id, function (dataURL) { 
+							tcBrowser.snap(size,tab.id, function (dataURL) {
 								chrome.tabs.sendMessage(tab.id,
 								{
 									action : 'restorescreen'
 								}, function (source)
-								{ 
+								{
 										tcBrowser.setSnapImage(dataURL);
 										chrome.storage.local.get({tags:{},flags:{},cptext:''}, function(items){
 											tcBrowser.setExtraTags(items.tags,items.flags,items.cptext);
@@ -544,23 +544,23 @@ tiddlycut.modules.browserOverlay = (function ()
 										})
 								});
 							},coords.x0,coords.y0,coords.wdt,coords.ht);
-							
+
 						}
 					);
-					
-				
+
+
 				//re-apply selected text (if any)
 				/*if (range) {
 					sel.addRange(range);
-				} 
+				}
 				*/
 				return;
-			}	
+			}
 			bjSendMessage(tab.id,
 				{
 					action : 'cut',prompt:(promptindex?pref.Get(promptindex):null)
 				}, function (source)
-				{ 
+				{
 					tiddlycut.log ("currentCat",currentCat,"tab.id",tab.id);
 					tcBrowser.setDatafromCS( source.url, source.html, source.title, source.twc, source.tw5, source.response); //add data to tcbrowser object -retrived later
 					var pasteText = document.querySelector("#output");
@@ -576,7 +576,7 @@ tiddlycut.modules.browserOverlay = (function ()
 							chrome.storage.local.get("notepad", function(items){
 								tcBrowser.setNote(items.notepad);
 								GoChrome(currentCat, null, tab.id);
-								chrome.storage.local.set({'notepad': null}, function() {console.log("bg: rm note")});							
+								chrome.storage.local.set({'notepad': null}, function() {console.log("bg: rm note")});
 							});
 						} else {
 							GoChrome(currentCat, null, tab.id);
@@ -606,7 +606,7 @@ tiddlycut.modules.browserOverlay = (function ()
 				}
 			);
 	}
-	
+
 	function GoChrome(category, tidlist, sourcetab)
 	{
 		tiddlycut.log("go1");
@@ -619,7 +619,7 @@ tiddlycut.modules.browserOverlay = (function ()
 		tiddlycut.log("sending paste",id);
 		chrome.tabs.sendMessage(id,
 		{ action: 'paste', data:{category:category, pageData:JSON.stringify(pageData),currentsection:currentsection}});
-		tiddlycut.log("sent paste");	
+		tiddlycut.log("sent paste");
 	}
 
 	function $(param) {
@@ -629,7 +629,7 @@ tiddlycut.modules.browserOverlay = (function ()
 }());
 
 
-// background script 
+// background script
 (function() {
 		// calls module.onLoad() after the extension is loaded
 	var i;

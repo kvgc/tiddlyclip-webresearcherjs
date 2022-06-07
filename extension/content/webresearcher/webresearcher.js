@@ -1,43 +1,8 @@
 
-document.addEventListener('keydown', workerFunction);
-function workerFunction(e){
-    var toggleHighlight= false;
-    if(e.ctrlKey){
-        //////// save annotation block ///////
-        if(e.keyCode==saveAnnotationsKeyCode){
-            var dict = {};
-            // grab all notes
-            var allNotes=document.getElementsByClassName("ui-widget-content");
-            var allNotes_html = ''
-            for(var i=0;i<allNotes.length;i++){
-                allNotes_html+= allNotes[i].outerHTML; // getting all notes
-            }
-
-            // add note to local storage
-            var makeNewID  = Number(new Date());
-            localStorage.setItem(webPageUrl, allNotes_html.replaceAll("tooltip","tooltip"+ makeNewID));
-            $.notify('Added notes to local storage', "success");
-          }
-         /// End of save annotation block///
-
-
-         if(e.keyCode==saveAllNotes){
-            var currentAnnotations = localStorage.getItem("annotations");
-            var encode_obj= encodeURIComponent(currentAnnotations);
-            // save note  as text file
-            var hiddenElement = document.createElement('a');
-            hiddenElement.href = 'data:text/txt;charset=utf-8,' + encode_obj;
-            hiddenElement.target = '_blank';
-            hiddenElement.download = 'all_annotations.csv';
-            hiddenElement.click();
-         }
-
-
           /////////////// Upload annotations block //////////////////////
           // Allow user to upload annotations when the Ctrl+2 key is pressed- code adapted from
           //https://stackoverflow.com/questions/19038919/is-it-possible-to-upload-a-text-file-to-input-in-html-js/19039880
 
-        if(e.keyCode==loadAnnotationsKeyCode){
 
             // load from local storage
             const cat = localStorage.getItem(webPageUrl);
@@ -129,10 +94,45 @@ function workerFunction(e){
                 }}, false);
               }
             })
-          }
-      addNotes();
+// addNotes();
 
         /// End of upload-annotation block///
+
+
+
+document.addEventListener('keydown', workerFunction);
+function workerFunction(e){
+    var toggleHighlight= false;
+    if(e.ctrlKey){
+        //////// save annotation block ///////
+        if(e.keyCode==saveAnnotationsKeyCode){
+            var dict = {};
+            // grab all notes
+            var allNotes=document.getElementsByClassName("ui-widget-content");
+            var allNotes_html = ''
+            for(var i=0;i<allNotes.length;i++){
+                allNotes_html+= allNotes[i].outerHTML; // getting all notes
+            }
+
+            // add note to local storage
+            var makeNewID  = Number(new Date());
+            localStorage.setItem(webPageUrl, allNotes_html.replaceAll("tooltip","tooltip"+ makeNewID));
+            $.notify('Added notes to local storage', "success");
+          }
+         /// End of save annotation block///
+
+
+         if(e.keyCode==saveAllNotes){
+            var currentAnnotations = localStorage.getItem("annotations");
+            var encode_obj= encodeURIComponent(currentAnnotations);
+            // save note  as text file
+            var hiddenElement = document.createElement('a');
+            hiddenElement.href = 'data:text/txt;charset=utf-8,' + encode_obj;
+            hiddenElement.target = '_blank';
+            hiddenElement.download = 'all_annotations.csv';
+            hiddenElement.click();
+         }
+
 
 
         /// open notes
@@ -282,6 +282,53 @@ function workerFunction(e){
                                              }
 
                                   editor.content.innerHTML += cont.outerHTML + "<div><br></div>" ;
+                                }
+                              },
+                              {
+                                icon: '&#9997;',
+                                title: 'Handwritten notes (Experimental)',
+                                result: () => {
+
+                                  const url =`
+                                  <div><main id="test"></main></div>
+                                  ` ;
+                                  editor.content.innerHTML += url ;
+
+                                  const s = ( p ) => {
+
+
+                                      p.setup = function() {
+                                        p.createCanvas(400, 400);
+                                        p.background('white');
+                                      };
+
+                                      p.draw = function() {
+                                        // p.background('white');
+
+
+                                        if(p.mouseIsPressed){
+                                             p.stroke('black')
+                                             p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
+                                             p.x=p.mouseY;
+                                             p.y=p.mouseX;
+
+                                       }
+
+                                         if (p.keyIsPressed === true) {    //eraser tool - hold any key and drag mouse around to use eraser
+                                             p.noStroke();
+                                             p.fill('white');
+                                             p.rect(p.mouseX,p.mouseY,30,30);
+                                             p.x=p.mouseY;
+                                             p.y=p.mouseX;
+
+                                       }
+                                  };
+                                };
+
+                                let myp5 = new p5(s,'test');
+
+
+
                                 }
                               }
 
