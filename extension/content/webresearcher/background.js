@@ -1,4 +1,5 @@
 
+
 console.log("inside background.js");
 browser.contextMenus.create({
   id: "eat-page",
@@ -9,23 +10,22 @@ browser.contextMenus.create({
 ////////////////////////////////////////////////////////////
 var jsFiles = ["ext_libs/jquery.min.js",
 "ext_libs/jquery-ui.min.js",
-"ext_libs/p5.js",
-"ext_libs/annotator/annotator-full.min.js",
-"ext_libs/annotator/scripts.js",
+"ext_libs/editorjs@latest.js",
+"ext_libs/header@latest.js",
+"ext_libs/simple-image@latest.js",
+"ext_libs/list@latest.js",
+"ext_libs/table@latest.js",
+"ext_libs/quote@latest.js",
+"ext_libs/edjsHTML.js",
 "ext_libs/popper.js",
-"ext_libs/pell.min.js",
 "ext_libs/notify.min.js",
-"ext_libs/bootstrap.min.js",
 "webresearcher/init.js",
 "webresearcher/webresearcher.js",
-"webresearcher/export.js",
 ];
 
-var cssFiles = ["ext_libs/pell.css",
+var cssFiles = [
 "ext_libs/jquery-ui.min.css",
-"ext_libs/annotator/annotator.min.css",
-"ext_libs/bootstrap.min.css",
-"ext_libs/katex.min.css"];
+];
 
 // error catching functions
 function onExecuted(result) {
@@ -37,7 +37,7 @@ function onError(error) {
   console.log(`Error: ${error}`);
 }
 
-// first wait for jquery, jquery-ui and annotator to load
+// first wait for jquery, jquery-ui and others to load and then load all the small ones.. very poorly written code...
 function loadJQuery(){
     const executing = browser.tabs.executeScript({
     file: jsFiles[0]
@@ -49,17 +49,20 @@ function loadJQueryUI(){
     const executing = browser.tabs.executeScript({
     file: jsFiles[1]
     });
-    executing.then(loadp5, onError);
+    executing.then(loadEditor, onError);
 
 }
 
-function loadp5(){
+function loadEditor(){
     const executing = browser.tabs.executeScript({
     file: jsFiles[2]
     });
     executing.then(loadOtherModules, onError);
 
 }
+
+
+
 // load all other modules
 function loadOtherModules(){
 
