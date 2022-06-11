@@ -98,37 +98,12 @@ function workerFunction(e){
                          },
                          shortcut: 'CMD+SHIFT+O'
                        }
-                       // table: {
-                       //   class: Table,
-                       //   inlineToolbar: true,
-                       //   shortcut: 'CMD+ALT+T'
-                       // },
+
                      },
                      onChange:(api, event) =>{
                           saved();
                       }
                   });
-
-                  function saved(){
-                    // save all the notes created so far
-                      for(i=1;i<note_count;i++){
-                          let notestyle = document.getElementById("tooltip"+i).style;
-                          editorJSObjs[i].save()
-                          .then((savedData) =>{
-                              // Convert JSON to html using parser
-                              const edjsParser = edjsHTML();
-                              let html = edjsParser.parse(savedData);
-
-                              // Save the JSON, CSS
-                              WBJS_JSON[i] = savedData
-                              WBJS_CSS[i] = notestyle
-                              WBJS_HTML[i] = html.join('');
-
-                          }).catch((error) =>{
-                              console.log(error)
-                          })
-                      }
-                  }
 
 
 
